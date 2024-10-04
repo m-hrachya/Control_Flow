@@ -16,6 +16,46 @@ typedef struct rpn_t {
     char expression[RPN_EXPRESSION_SIZE];
 } rpn_t;
 
+void reverse(char str[], int length) {
+    int start = 0;
+    int end = length - 1;
+    while (start < end) {
+        char temp = str[start];
+        str[start] = str[end];
+        str[end] = temp;
+        start++;
+        end--;
+    }
+}
+
+char* itoa(int num) {
+    int i = 0;
+    int isNegative = 0;
+    char* str = (char*)malloc(12 * sizeof(char));
+
+    if (str == NULL) {
+        return NULL;
+    }
+
+    if (num < 0) {
+        isNegative = 1;
+        num = -num;
+    }
+
+    do {
+        str[i++] = (num % 10) + '0';
+        num = num / 10;
+    } while (num != 0);
+
+    if (isNegative)
+        str[i++] = '-';
+
+    str[i] = '\0';
+    reverse(str, i);
+
+    return str;
+}
+
 int is_number(char * str) {
     for (int i = 0; str[i] != '\0'; ++i) {
         if (str[i] < '0' || str[i] > '9') return 0;
@@ -74,6 +114,29 @@ rpn_t * convert_to_rpn(char * expression) {
     return rpn_expression_template;
 }
 
+rpn_t * calculate_rpn(rpn_t * rpn_expression_template) {
+    rpn_t * result_template = init_rpn_exp();
+    char * token = strtok(rpn_expression_template->expression, " ");
+    while (token) {
+        if (is_number(token)) {
+            push(result_template, token);
+        } else {
+            int num1 = atoi(pop(result_template));
+            int num2 = atoi(pop(result_template));
+            int res = 0;
+            if (!strcmp(token, "+")) res = num2 + num1;
+            else if (!strcmp(token, "-")) res = num2 - num1;
+            else if (!strcmp(token, "*")) res = num2 * num1;
+            else if (!strcmp(token, "/")) res = num2 / num1;
+            char * res_str = itoa(res);
+            push(result_template, res_str);
+        }
+        token = strtok(NULL, " ");
+    }
+    strcpy(result_template->expression, result_template->stack_of_opearators[0]);
+    return result_template;
+}
+
 int main() {
     char * infix_expression = (char *) calloc(sizeof(char), EXPRESSION_SIZE);
     assert(infix_expression != NULL);
@@ -81,8 +144,10 @@ int main() {
     fgets(infix_expression, EXPRESSION_SIZE - 2, stdin);
     infix_expression[strlen(infix_expression) - 1] = '\0';
     rpn_t * rpn_expression = convert_to_rpn(infix_expression);
-    printf("RPN version: %s\n", rpn_expression->expression);
-    free(rpn_expression);
+    rpn_t * result = calculate_rpn(rpn_expression);
+    printf("Result: %s\n", result->expression);
     free(infix_expression);
+    free(rpn_expression);
+    free(result);
     return 0;
 }
