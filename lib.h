@@ -8,7 +8,7 @@
 
 #define STACK_SIZE 32
 #define EXPRESSION_SIZE 32
-#define RPN_EXPRESSION_SIZE 32
+#define RPN_EXPRESSION_SIZE 256 // Mark 2: Changed from 32 to 256
 #define WORD_SIZE 8
 #define LOW_PRECEDENCE 1
 #define HIGH_PRECEDENCE 2
