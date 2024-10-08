@@ -88,6 +88,14 @@ rpn_t * convert_to_rpn(char * expression) {
                 strcat(rpn_expression_template->expression, " ");
             }
             push(rpn_expression_template, token);
+        } else if (!strcmp(token, "(")) {
+            push(rpn_expression_template, token);
+        } else if(!strcmp(token, ")")) {
+            while (!is_empty(rpn_expression_template) && !strcmp(peek(rpn_expression_template), "(")) {
+                strcat(rpn_expression_template->expression, pop(rpn_expression_template));
+                strcat(rpn_expression_template->expression, " ");
+            }
+            pop(rpn_expression_template);
         } else { // Mark 1: Bad Expression checked!
             printf("Invalid expression entered! Can't convert to RPN!\n");
             exit(EXIT_FAILURE);
